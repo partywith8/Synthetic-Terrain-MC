@@ -1,4 +1,4 @@
-"""Generate README figures from the published aggregate data (requires matplotlib)."""
+"""Render compact, transparent README charts from measured benchmark aggregates."""
 
 import json
 import math
@@ -14,146 +14,111 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
-BACKGROUND = "#101820"
-TEXT = "#edf3f8"
-MUTED = "#acbbc9"
-TEAL = "#59d8bd"
-AMBER = "#ffcc75"
-BLUE = "#7aaefe"
-GRAY = "#667b91"
-
-
-def style_axis(ax):
-    ax.set_facecolor(BACKGROUND)
-    ax.set_axisbelow(True)
-    ax.grid(axis="y", color="#334453", linewidth=0.6)
-    ax.tick_params(colors=MUTED, length=0, pad=8)
-    for spine in ax.spines.values():
-        spine.set_visible(False)
+THEMES = {
+    "": {"text": "#24292f", "muted": "#57606a", "grid": "#d0d7de"},
+    "-dark": {"text": "#e6edf3", "muted": "#aebbc8", "grid": "#394654"},
+}
+COLORS = {"stress": "#29a58c", "smp": "#598fdb", "flat_overworld": "#c69231"}
 
 
 def save(fig, path):
     fig.savefig(
         path,
-        dpi=160,
-        facecolor=BACKGROUND,
+        dpi=180,
+        transparent=True,
         metadata={"Title": "Synthetic Terrain MC benchmark", "Software": "Matplotlib"},
     )
     plt.close(fig)
 
 
-def main():
-    directory = ROOT / "docs" / "benchmarks"
-    report = json.loads(
-        (directory / "stress-2026-10-14.json").read_text(encoding="utf-8")
+def bars(directory, groups, theme, suffix, timing=False):
+    fig, ax = plt.subplots(figsize=(5, 2.85))
+    fig.subplots_adjust(left=0.29, right=0.85, top=0.84, bottom=0.17)
+    labels = [
+        "STM stress · 10",
+        "STM stress · 25",
+        "SMP · 10",
+        "SMP · 25→14",
+        "Flat OW · 10",
+        "Flat OW · 25",
+    ]
+    values = [
+        g["sampled_client_loop_ms"]["p99"] if timing else g["average_fps"]
+        for g in groups
+    ]
+    ax.barh(
+        range(len(groups)),
+        values,
+        height=0.57,
+        color=[COLORS[g["scenario"]] for g in groups],
     )
-    captures = report["captures"]
-    assert [c["capture"] for c in captures] == ["10-A", "10-B", "25-A", "25-B"]
-    plt.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "font.size": 11,
-            "text.color": TEXT,
-            "axes.labelcolor": MUTED,
-            "axes.titlecolor": TEXT,
-        }
-    )
-
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5.8), facecolor=BACKGROUND)
-    fig.subplots_adjust(left=0.065, right=0.97, bottom=0.26, top=0.74, wspace=0.25)
-    fig.text(0.065, 0.92, "STM / TERRAIN STRESS", fontsize=21, weight="bold")
-    fig.text(
-        0.065,
-        0.86,
-        "2560 × 1440  ·  RX 9070 XT + Ryzen 9 5900X  ·  Unlimited FPS",
-        color=MUTED,
-        fontsize=11,
-    )
-    labels = [c["capture"] for c in captures]
-    for ax in axes:
-        style_axis(ax)
-        ax.set_xticks(range(4), labels)
-    fps = [c["average_fps"] for c in captures]
-    bars = axes[0].bar(range(4), fps, width=0.6, color=[TEAL, TEAL, AMBER, AMBER])
-    axes[0].bar_label(
-        bars, labels=[f"{v:.1f}" for v in fps], padding=8, color=TEXT, weight="bold"
-    )
-    axes[0].set_title("Average FPS", loc="left", fontsize=14, pad=14)
-    axes[0].set_ylabel("FPS · higher is better")
-    axes[0].set_ylim(0, 520)
-    axes[0].yaxis.set_major_locator(MultipleLocator(100))
-
-    width = 0.23
-    for offset, key, label, color in [
-        (-1, "p50", "p50", TEAL),
-        (0, "p95", "p95", BLUE),
-        (1, "p99", "p99", AMBER),
-    ]:
-        values = [c["sampled_client_loop_ms"][key] for c in captures]
-        axes[1].bar(
-            [x + offset * width for x in range(4)],
-            values,
-            width,
-            label=label,
-            color=color,
+    ax.set_yticks(range(len(groups)), labels)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 9 if timing else 2050)
+    ax.xaxis.set_major_locator(MultipleLocator(2 if timing else 500))
+    ax.set_axisbelow(True)
+    ax.grid(axis="x", color=theme["grid"], linewidth=0.5)
+    ax.tick_params(colors=theme["muted"], length=0, pad=5, labelsize=9)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    for y, value in enumerate(values):
+        ax.text(
+            value + (0.12 if timing else 25),
+            y,
+            f"{value:.2f}" if timing else f"{value:,.1f}",
+            va="center",
+            fontsize=9,
+            color=theme["text"],
         )
-    axes[1].set_title("Client loop timing", loc="left", fontsize=14, pad=14)
-    axes[1].set_ylabel("ms · lower is better")
-    axes[1].set_ylim(0, 9.2)
-    axes[1].yaxis.set_major_locator(MultipleLocator(2))
-    axes[1].legend(
-        frameon=False, labelcolor=TEXT, ncol=3, loc="upper left", fontsize=10
-    )
     fig.text(
-        0.065,
-        0.135,
-        "10-A / 10-B: 10 chunks, STM 0.2.2     •     25-A / 25-B: 25 chunks, dev 0.3.0",
-        color=MUTED,
-        fontsize=10,
-    )
-    fig.text(
-        0.065,
-        0.085,
-        "Four ~10 s F3+L captures during stress. Different builds; no idle baseline.",
-        color=MUTED,
-        fontsize=10,
-    )
-    fig.text(
-        0.065,
         0.04,
-        "Timing percentiles are CPU-side loop samples, not GPU or display-presentation times.",
-        color=MUTED,
-        fontsize=10,
+        0.94,
+        "p99 client loop · ms ↓" if timing else "Average FPS ↑",
+        fontsize=11,
+        weight="bold",
+        color=theme["text"],
+        va="top",
     )
-    save(fig, directory / "stress-performance.png")
+    ax.set_xlabel(
+        "CPU samples · pooled" if timing else "Frames / elapsed time · pooled",
+        fontsize=8,
+        color=theme["muted"],
+    )
+    save(
+        fig,
+        directory
+        / (("stress-timing" if timing else "stress-performance") + suffix + ".png"),
+    )
 
-    # Render is inclusive of the STM pass. Subtract the nested scope so that
-    # the pie contains disjoint slices instead of counting that work twice.
-    stages = captures[-1]["cpu_profiler_stages"]
+
+def pie(directory, capture, theme, suffix):
+    stages = capture["cpu_profiler_stages"]
     swap = stages["swapBuffers"]["percent_of_profiled_root"]
     render = stages["render"]["percent_of_profiled_root"]
     terrain = stages["epd_terrain"]["percent_of_profiled_root"]
+    # The terrain pass is nested in render. Subtract it to keep slices disjoint.
     shares = [swap, terrain, render - terrain, 100 - swap - render]
     assert all(math.isfinite(v) and v >= 0 for v in shares)
     assert math.isclose(sum(shares), 100, abs_tol=1e-8)
-    fig = plt.figure(figsize=(10, 5.4), facecolor=BACKGROUND)
-    fig.text(0.06, 0.91, "WHERE THE PROFILED TIME GOES", fontsize=19, weight="bold")
-    fig.text(
-        0.06,
-        0.84,
-        "25-chunk stress · Run 25-B · CPU profiler root time",
-        color=MUTED,
-        fontsize=11,
-    )
-    ax = fig.add_axes((0.035, 0.15, 0.48, 0.64))
+    fig = plt.figure(figsize=(5, 2.15))
+    ax = fig.add_axes((0.015, 0.04, 0.37, 0.77))
     wedges, _ = ax.pie(
         shares,
-        colors=[BLUE, TEAL, AMBER, GRAY],
+        colors=[COLORS["smp"], COLORS["stress"], COLORS["flat_overworld"], "#83909e"],
         startangle=90,
         counterclock=False,
-        wedgeprops={"edgecolor": BACKGROUND, "linewidth": 2},
+        wedgeprops={"linewidth": 0},
     )
-    labels = [
+    fig.text(
+        0.04,
+        0.95,
+        "25-chunk stress · CPU profile",
+        fontsize=11,
+        weight="bold",
+        color=theme["text"],
+        va="top",
+    )
+    names = [
         "Swap / presentation",
         "STM render pass",
         "Other rendering",
@@ -161,29 +126,41 @@ def main():
     ]
     fig.legend(
         wedges,
-        [f"{name}   {value:.2f}%" for name, value in zip(labels, shares)],
+        [f"{name}  {value:.2f}%" for name, value in zip(names, shares)],
         loc="center left",
-        bbox_to_anchor=(0.50, 0.49),
+        bbox_to_anchor=(0.39, 0.44),
         frameon=False,
-        labelcolor=TEXT,
-        fontsize=12,
-        labelspacing=1.5,
+        fontsize=9,
+        labelcolor=theme["text"],
+        labelspacing=1.0,
+        handlelength=1,
     )
-    fig.text(
-        0.06,
-        0.085,
-        "Swap includes driver/presentation waiting. Percentages are not GPU utilization.",
-        color=MUTED,
-        fontsize=10,
+    save(fig, directory / ("stress-cpu-profile" + suffix + ".png"))
+
+
+def main():
+    directory = ROOT / "docs/benchmarks"
+    report = json.loads(
+        (directory / "comparison-2026-10-14.json").read_text(encoding="utf-8")
     )
-    fig.text(
-        0.06,
-        0.04,
-        "STM is subtracted from total rendering; the four slices sum to 100%.",
-        color=MUTED,
-        fontsize=10,
-    )
-    save(fig, directory / "stress-cpu-profile.png")
+    lookup = {(g["scenario"], g["effective_view_chunks"]): g for g in report["groups"]}
+    groups = [
+        lookup[key]
+        for key in [
+            ("stress", 10),
+            ("stress", 25),
+            ("smp", 10),
+            ("smp", 14),
+            ("flat_overworld", 10),
+            ("flat_overworld", 25),
+        ]
+    ]
+    capture = next(c for c in report["captures"] if c["capture"] == "STM-25-B")
+    plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 9})
+    for suffix, theme in THEMES.items():
+        bars(directory, groups, theme, suffix)
+        bars(directory, groups, theme, suffix, timing=True)
+        pie(directory, capture, theme, suffix)
 
 
 if __name__ == "__main__":

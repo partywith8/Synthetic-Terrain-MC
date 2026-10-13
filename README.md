@@ -16,99 +16,114 @@ an entire view of terrain.
 
 ## Performance
 
-**Stress captures: 427.5 FPS at 10 chunks; 222.2 FPS at 25 chunks**
-(pooled frame count / elapsed time across two runs per setting).
+**STM stress: 427.4 FPS at 10 chunks; 222.2 FPS at 25 chunks.**
+Populated SMP and superflat Overworld captures provide adjacent reference scenes.
 
-Recorded on **2026-10-14**, at **2560×1440**, during `/stm stress 120`.
-All four F3+L captures are included in full; no samples were removed.
+**Ryzen 9 5900X · RX 9070 XT 16 GB · 32 GB RAM · 2560×1440**
 
-| Hardware / runtime | Configuration |
-| --- | --- |
-| CPU | Ryzen 9 5900X, 12C/24T |
-| GPU | Radeon RX 9070 XT, 16 GB; driver 32.0.31041.1004 |
-| RAM / JVM | 32 GB RAM; 8 GiB Java heap; ZGC |
-| Platform | Windows 11 x64; MC 26.2; Azul OpenJDK 25.0.1 |
-| Client | Lunar; Fabric Loader 0.19.5; Fabric API 0.152.1; Sodium 0.9.2; Iris 1.11.4 |
-| Renderer | Vulkan; fullscreen; FOV 110; unlimited FPS; VSync off |
-| Graphics | Custom preset; clouds off; all particles; mipmaps 4; RGSS filtering |
-| Server | Dedicated process on the same PC; simulation distance 6 |
+Unlimited FPS, VSync off, Vulkan, FOV 110. Recorded 2026-10-14 with F3+L.
 
-The client is modded beyond STM. These results describe that configuration.
-The 25-chunk captures used local development build 0.3.0, not the downloadable
-0.2.3 package; they are development measurements, not a benchmark of that release.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-performance-dark.png">
+  <img src="docs/benchmarks/stress-performance.png" alt="Pooled FPS: STM stress, populated SMP and superflat Overworld" width="390">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-timing-dark.png">
+  <img src="docs/benchmarks/stress-timing.png" alt="Pooled p99 CPU client-loop times for the same scenes" width="390">
+</picture>
 
-![FPS and client-loop timing across four stress captures](docs/benchmarks/stress-performance.png)
+| Scene | View: client → effective | Runs | Avg FPS | p95 / p99 loop (ms) |
+| --- | ---: | ---: | ---: | ---: |
+| STM stress | 20 → 10 | 2 | 427.4 | 3.009 / 4.015 |
+| STM stress | 25 → 25 | 2 | 222.2 | 6.053 / 7.308 |
+| Populated SMP | 10 → 10 | 2 | 507.3 | 3.590 / 6.059 |
+| Populated SMP | 25 → 14 | 2 | 384.5 | 5.516 / 7.673 |
+| Superflat OW | 10 → 10 | 1 | 1,797.7 | 0.949 / 1.454 |
+| Superflat OW | 25 → 25 | 1 | 1,710.6 | 1.020 / 1.607 |
 
-### Rendered FPS
-
-| Run | STM | Effective / client view (chunks) | Duration (s) | Frames | Avg FPS |
-| --- | --- | ---: | ---: | ---: | ---: |
-| 10-A | 0.2.2 | 10 / 20 | 10.000 | 3,993 | 399.3 |
-| 10-B | 0.2.2 | 10 / 20 | 10.000 | 4,556 | 455.6 |
-| 25-A | 0.3.0 | 25 / 25 | 9.997 | 2,312 | 231.3 |
-| 25-B | 0.3.0 | 25 / 25 | 10.000 | 2,132 | 213.2 |
-
-Effective view is confirmed by the capture’s `lastViewDistance` samples:
-10 throughout the first pair, 25 throughout the second. Client simulation
-distance was 12 in all four captures; the server setting remained 6.
-
-### Sampled client frame-loop time
-
-Milliseconds; lower is better. These are CPU-side profiler samples, including
-waiting inside the loop, rather than display-presentation or GPU execution times.
-
-| Run | Mean | p50 | p95 | p99 | p99.9 | Max |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 10-A | 2.480 | 2.471 | 3.026 | 4.330 | 5.967 | 7.852 |
-| 10-B | 2.185 | 2.247 | 2.986 | 3.436 | 5.300 | 5.714 |
-| 25-A | 4.299 | 4.264 | 5.127 | 7.806 | 9.739 | 9.888 |
-| 25-B | 4.670 | 4.381 | 6.152 | 6.702 | 8.535 | 8.783 |
-
-| Run | Samples >8.33 ms | Samples >16.67 ms | Sampled heap range (MiB) |
-| --- | ---: | ---: | ---: |
-| 10-A | 0 / 3,993 | 0 | 1,542–3,246 |
-| 10-B | 0 / 4,556 | 0 | 3,782–6,040 |
-| 25-A | 16 / 2,312 | 0 | 3,708–5,326 |
-| 25-B | 4 / 2,132 | 0 | 5,850–7,624 |
-
-No sampled loop exceeded 16.67 ms in these windows. Heap values cover the whole
-client, including other mods and garbage awaiting collection; they are not
-STM-only memory or VRAM measurements.
-
-![CPU profiler time shares during 25-chunk stress, run 25-B](docs/benchmarks/stress-cpu-profile.png)
+The SMP pair requested 25 chunks but recorded **14 effective**. Superflat has
+one run per distance; the other settings have two. These are different scenes,
+not a controlled measurement of STM overhead. STM's 10-chunk pair used 0.2.2;
+its 25-chunk pair used development build 0.3.0, not the downloadable 0.2.3.
 
 <details>
-<summary>CPU profiler breakdown and methodology</summary>
+<summary>Per-run FPS, loop timings and memory</summary>
 
-Share of profiled root time. `epd_terrain` is STM’s CPU render-pass scope,
-nested within `render`; these columns must not be added together.
+Ten approximately 10 s captures; timings are CPU client-loop samples, including
+waiting, not GPU execution or display-presentation times. No samples were trimmed
+from included runs. One additional capture in the wrong dimension was excluded.
 
-| Run | `swapBuffers` | `render` | `epd_terrain` |
+| Run | Frames | Duration (s) | Avg FPS | Mean ms | p50 | p95 | p99 | Max |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| STM-10-A | 3,993 | 10.000 | 399.3 | 2.480 | 2.471 | 3.026 | 4.330 | 7.852 |
+| STM-10-B | 4,556 | 10.000 | 455.6 | 2.185 | 2.247 | 2.986 | 3.436 | 5.714 |
+| STM-25-A | 2,312 | 9.997 | 231.3 | 4.299 | 4.264 | 5.127 | 7.806 | 9.888 |
+| STM-25-B | 2,132 | 10.000 | 213.2 | 4.670 | 4.381 | 6.152 | 6.702 | 8.783 |
+| SMP-14-A | 3,697 | 10.000 | 369.7 | 2.687 | 2.398 | 5.727 | 8.067 | 17.608 |
+| SMP-14-B | 3,993 | 10.001 | 399.3 | 2.492 | 2.146 | 5.312 | 7.266 | 9.819 |
+| SMP-10-A | 4,611 | 10.000 | 461.1 | 2.160 | 1.994 | 4.109 | 6.142 | 9.915 |
+| SMP-10-B | 5,535 | 10.000 | 553.5 | 1.799 | 1.494 | 3.385 | 5.864 | 9.508 |
+| FLAT-10-A | 17,977 | 10.000 | 1,797.7 | 0.551 | 0.462 | 0.949 | 1.454 | 3.998 |
+| FLAT-25-A | 17,106 | 10.000 | 1,710.6 | 0.580 | 0.487 | 1.020 | 1.607 | 6.448 |
+
+| Run | Loops >8.33 ms | Loops >16.67 ms | Heap range (MiB) |
 | --- | ---: | ---: | ---: |
-| 10-A | 67.73% | 12.03% | 2.21% |
-| 10-B | 65.02% | 13.85% | 2.08% |
-| 25-A | 67.90% | 12.48% | 5.63% |
-| 25-B | 66.31% | 12.76% | 5.74% |
+| STM-10-A | 0 / 3,993 | 0 | 1,542–3,246 |
+| STM-10-B | 0 / 4,556 | 0 | 3,782–6,040 |
+| STM-25-A | 16 / 2,312 | 0 | 3,708–5,326 |
+| STM-25-B | 4 / 2,132 | 0 | 5,850–7,624 |
+| SMP-14-A | 22 / 3,697 | 1 | 1,256–7,826 |
+| SMP-14-B | 10 / 3,993 | 0 | 1,334–7,750 |
+| SMP-10-A | 4 / 4,611 | 0 | 1,394–7,846 |
+| SMP-10-B | 2 / 5,535 | 0 | 1,380–7,830 |
+| FLAT-10-A | 0 / 17,977 | 0 | 1,666–7,586 |
+| FLAT-25-A | 0 / 17,106 | 0 | 1,948–7,516 |
 
-`swapBuffers` includes presentation/driver waiting. These scopes do not isolate
-GPU work, establish a GPU bottleneck, or measure STM’s entire per-frame cost.
+Heap covers the whole client, other mods and garbage awaiting collection;
+it is not STM-only memory or VRAM. `SMP-14` means 25 requested / 14 effective.
+`FLAT` denotes the demo's superflat Overworld, outside the STM dimension.
 
-- FPS = rendered `frame` count / recorded wall time. Minecraft rounds the
-  recorded duration to milliseconds. Its client profiler calls these samples
-  “ticks”; this is not server TPS.
-- Timings come from `client/metrics/ticking.csv`, converted from ns to ms.
-  Percentiles use nearest rank: `sorted[ceil(p × N) − 1]`.
-- No presentation-based 1% lows, GPU utilization, server TPS or MSPT are
-  inferred from these client captures.
-- Both pairs ran during stress. There is no idle baseline. STM changed from
-  0.2.2 to 0.3.0 between pairs, including wider roaming stress coverage, so
-  the difference cannot be attributed solely to render distance.
-- Camera position, traversal, full STM mesh readiness and active shader-pack
-  state were not independently established. Four short profiled windows
-  do not establish long-session performance or results on other hardware.
+</details>
 
-[Aggregate data and capture SHA-256s](docs/benchmarks/stress-2026-10-14.json).
-Regenerate figures with `python tools/render_benchmarks.py` (Matplotlib).
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-cpu-profile-dark.png">
+  <img src="docs/benchmarks/stress-cpu-profile.png" alt="CPU profiler shares for STM-25-B: swap 66.31%, STM 5.74%, other render 7.02%, other work 20.93%" width="390">
+</picture>
+
+The pie uses **STM-25-B**. STM's render pass is subtracted from inclusive
+render time so slices sum to 100%. Swap includes driver/presentation waiting.
+These shares are not GPU utilization or STM's total overhead.
+
+<details>
+<summary>CPU profile, settings and methodology</summary>
+
+| Configuration | Value |
+| --- | --- |
+| OS / Java | Windows 11 x64; Azul OpenJDK 25.0.1; 8 GiB heap; ZGC |
+| MC / client | 26.2; Lunar with additional mods |
+| Fabric | Loader 0.19.5; API 0.152.1 |
+| Rendering mods | Sodium 0.9.2; Iris 1.11.4 |
+| GPU driver | 32.0.31041.1004 |
+| Graphics | Custom; fullscreen; clouds off; all particles; mipmaps 4; RGSS |
+| Demo server | Dedicated process on the same PC; simulation distance 6 |
+| SMP server | Separate reference world; server simulation distance unverified |
+
+- FPS = rendered frame count / recorded wall duration, rounded by MC to ms.
+  Group FPS uses total frames / total time.
+- Loop timings come from `client/metrics/ticking.csv`, converted from ns to ms.
+  Percentiles use nearest rank: `sorted[ceil(p × N) − 1]`. Group percentiles
+  use pooled samples, not averages of run percentiles.
+- All four STM runs were captured during `/stm stress 120`. Reference runs
+  contain no STM terrain-render scope. Different worlds, entities, camera paths
+  and stress builds prevent attributing differences solely to STM or view distance.
+- Camera pose, mesh readiness and active shader-pack state were not independently
+  recorded. Short client profiles do not establish presentation-based 1% lows,
+  GPU execution time, server TPS/MSPT or long-session performance.
+
+[Comparison data and capture hashes](docs/benchmarks/comparison-2026-10-14.json) ·
+[Original stress data](docs/benchmarks/stress-2026-10-14.json)
+
+Regenerate charts: `python tools/render_benchmarks.py` (Matplotlib).
 
 </details>
 
