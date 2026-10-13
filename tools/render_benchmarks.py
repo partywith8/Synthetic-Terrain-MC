@@ -12,7 +12,6 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
 
 THEMES = {
     "": {"text": "#24292f", "muted": "#57606a", "grid": "#d0d7de"},
@@ -37,58 +36,6 @@ def save(fig, path):
         metadata={"Title": "Synthetic Terrain MC benchmark", "Software": "Matplotlib"},
     )
     plt.close(fig)
-
-
-def bars(directory, groups, theme, suffix, timing=False):
-    fig, ax = plt.subplots(figsize=(5, 2.85))
-    fig.subplots_adjust(left=0.29, right=0.85, top=0.84, bottom=0.17)
-    values = [
-        g["sampled_client_loop_ms"]["p99"] if timing else g["average_fps"]
-        for g in groups
-    ]
-    ax.barh(
-        range(len(groups)),
-        values,
-        height=0.57,
-        color=[COLORS[g["scenario"]] for g in groups],
-    )
-    ax.set_yticks(range(len(groups)), LABELS)
-    ax.invert_yaxis()
-    ax.set_xlim(0, 9 if timing else 2050)
-    ax.xaxis.set_major_locator(MultipleLocator(2 if timing else 500))
-    ax.set_axisbelow(True)
-    ax.grid(axis="x", color=theme["grid"], linewidth=0.5)
-    ax.tick_params(colors=theme["muted"], length=0, pad=5, labelsize=9)
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-    for y, value in enumerate(values):
-        ax.text(
-            value + (0.12 if timing else 25),
-            y,
-            f"{value:.2f}" if timing else f"{value:,.1f}",
-            va="center",
-            fontsize=9,
-            color=theme["text"],
-        )
-    fig.text(
-        0.04,
-        0.94,
-        "p99 client loop · ms ↓" if timing else "Average FPS ↑",
-        fontsize=11,
-        weight="bold",
-        color=theme["text"],
-        va="top",
-    )
-    ax.set_xlabel(
-        "CPU samples · pooled" if timing else "Frames / elapsed time · pooled",
-        fontsize=8,
-        color=theme["muted"],
-    )
-    save(
-        fig,
-        directory
-        / (("stress-timing" if timing else "stress-performance") + suffix + ".png"),
-    )
 
 
 def pie(directory, capture, theme, suffix):
@@ -276,124 +223,6 @@ def timeline(directory, groups, captures, theme, suffix):
     save(fig, directory / ("fps-timeline" + suffix + ".png"))
 
 
-def heap_timeline(directory, groups, captures, theme, suffix):
-    fig, axes = plt.subplots(3, 2, figsize=(9.5, 7.5))
-    fig.subplots_adjust(
-        left=0.075, right=0.98, top=0.87, bottom=0.08, hspace=0.65, wspace=0.2
-    )
-    fig.text(
-        0.025,
-        0.97,
-        "Client Java heap over time",
-        color=theme["text"],
-        weight="bold",
-        fontsize=14,
-        va="top",
-    )
-    fig.text(
-        0.025,
-        0.92,
-        "A solid / B dashed · 250 ms means + min/max bands · 8 GiB heap limit",
-        color=theme["muted"],
-        fontsize=10,
-    )
-    for ax, group, label in zip(axes.flat, groups, LABELS):
-        runs = [
-            c
-            for c in captures
-            if c["scenario"] == group["scenario"]
-            and c["settings"]["effective_view_chunks"] == group["effective_view_chunks"]
-        ]
-        for i, run in enumerate(runs):
-            bins = run["heap_timeline"]
-            x = [b["start_sampled_s"] + b["duration_ms"] / 2000 for b in bins]
-            color = COLORS[group["scenario"]] if i == 0 else theme["text"]
-            ax.fill_between(
-                x,
-                [b["min_mib"] / 1024 for b in bins],
-                [b["max_mib"] / 1024 for b in bins],
-                color=color,
-                alpha=0.12,
-                linewidth=0,
-            )
-            ax.plot(
-                x,
-                [b["mean_mib"] / 1024 for b in bins],
-                color=color,
-                linestyle="-" if i == 0 else "--",
-                linewidth=1.4,
-            )
-        ax.set_title(
-            label + (" · A only" if len(runs) == 1 else ""),
-            loc="left",
-            fontsize=11,
-            color=theme["text"],
-            pad=8,
-        )
-        ax.set_xlim(0, 10)
-        ax.set_ylim(0, 8.4)
-        ax.set_xticks([0, 2, 4, 6, 8, 10])
-        ax.set_yticks([0, 2, 4, 6, 8])
-        ax.axhline(8, color=theme["muted"], linewidth=0.7, linestyle=":")
-        clean_axis(ax, theme)
-    for ax in axes[:, 0]:
-        ax.set_ylabel("Heap used (GiB)", color=theme["muted"], fontsize=10)
-    for ax in axes[-1, :]:
-        ax.set_xlabel("Sampled elapsed time (s)", color=theme["muted"], fontsize=10)
-    save(fig, directory / ("heap-timeline" + suffix + ".png"))
-
-
-def cpu_load(directory, captures, theme, suffix):
-    fig, ax = plt.subplots(figsize=(9.5, 5.5))
-    fig.subplots_adjust(left=0.15, right=0.96, top=0.82, bottom=0.12)
-    fig.text(
-        0.025,
-        0.97,
-        "Host CPU load · all processes",
-        color=theme["text"],
-        weight="bold",
-        fontsize=14,
-        va="top",
-    )
-    series = [
-        ("mean_all_cpus", "Mean across 24 logical CPUs", "#598fdb"),
-        ("mean_busiest_cpu", "Mean of busiest logical CPU at each sample", "#c69231"),
-    ]
-    for index, (key, name, color) in enumerate(series):
-        values = [c["host_cpu_percent"][key] for c in captures]
-        positions = [i + (index - 0.5) * 0.32 for i in range(len(captures))]
-        ax.barh(positions, values, height=0.28, color=color, label=name)
-        for y, value in zip(positions, values):
-            ax.text(
-                value + 1,
-                y,
-                f"{value:.1f}%",
-                color=theme["text"],
-                fontsize=9,
-                va="center",
-            )
-    ax.set_yticks(range(len(captures)), [c["capture"] for c in captures])
-    ax.invert_yaxis()
-    ax.set_xlim(0, 100)
-    ax.set_xticks([0, 20, 40, 60, 80, 100])
-    clean_axis(ax, theme, "x")
-    ax.set_xlabel(
-        "CPU load (%) · weighted by sampled loop duration",
-        color=theme["muted"],
-        fontsize=10,
-    )
-    ax.legend(
-        loc="lower left",
-        bbox_to_anchor=(-0.16, 1.035),
-        ncol=2,
-        frameon=False,
-        fontsize=9,
-        labelcolor=theme["text"],
-        handlelength=1,
-    )
-    save(fig, directory / ("host-cpu" + suffix + ".png"))
-
-
 def main():
     directory = ROOT / "docs/benchmarks"
     report = json.loads(
@@ -414,13 +243,9 @@ def main():
     capture = next(c for c in report["captures"] if c["capture"] == "STM-25-B")
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 9})
     for suffix, theme in THEMES.items():
-        bars(directory, groups, theme, suffix)
-        bars(directory, groups, theme, suffix, timing=True)
         pie(directory, capture, theme, suffix)
         low_bars(directory, groups, theme, suffix)
         timeline(directory, groups, report["captures"], theme, suffix)
-        heap_timeline(directory, groups, report["captures"], theme, suffix)
-        cpu_load(directory, report["captures"], theme, suffix)
 
 
 if __name__ == "__main__":

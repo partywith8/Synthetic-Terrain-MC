@@ -23,16 +23,6 @@ Populated SMP and superflat Overworld captures provide adjacent reference scenes
 
 Unlimited FPS, VSync off, Vulkan, FOV 110. Recorded 2026-10-14 with F3+L.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-performance-dark.png">
-  <img src="docs/benchmarks/stress-performance.png" alt="Pooled FPS: STM stress, populated SMP and superflat Overworld" width="650">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-timing-dark.png">
-  <img src="docs/benchmarks/stress-timing.png" alt="Pooled p99 CPU client-loop times for the same scenes" width="650">
-</picture>
-
 | Scene | View: client → effective | Runs | Avg FPS | p95 / p99 loop (ms) |
 | --- | ---: | ---: | ---: | ---: |
 | STM stress | 20 → 10 | 2 | 427.4 | 3.009 / 4.015 |
@@ -46,7 +36,6 @@ The SMP pair requested 25 chunks but recorded **14 effective**. Superflat has
 one run per distance; the other settings have two. These are different scenes,
 not a controlled measurement of STM overhead. STM's 10-chunk pair used 0.2.2;
 its 25-chunk pair used development build 0.3.0, not the downloadable 0.2.3.
-
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/fps-lows-dark.png">
@@ -83,28 +72,6 @@ For each fraction `f`, take the slowest `ceil(N × f)` samples, then calculate
 samples. The 0.1% figures use very few samples and can vary substantially.
 
 </details>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/heap-timeline-dark.png">
-  <img src="docs/benchmarks/heap-timeline.png" alt="Whole-client Java heap across all ten captures; means and min-max bands" width="760">
-</picture>
-
-Heap curves include the entire client and garbage awaiting collection. The
-bands retain each 250 ms bin's minimum and maximum; lines show duration-weighted
-means. These short windows do not establish a memory leak or GC pause duration.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/host-cpu-dark.png">
-  <img src="docs/benchmarks/host-cpu.png" alt="Host-wide CPU load per run: all logical CPUs versus the busiest logical CPU" width="760">
-</picture>
-
-CPU load covers **all host processes**, including the local demo server when
-running. Blue averages all 24 logical CPUs; gold averages the busiest logical
-CPU at each sample, which can be a different CPU over time. Values are weighted
-by sampled loop duration. MC caches CPU polls for approximately 0.5 s.
-
-Neither graph isolates STM's resource use. Total process RAM, VRAM, allocation
-rate, GC pause times and server MSPT require separate measurements.
 
 <details>
 <summary>Per-run FPS, loop timings and memory</summary>
