@@ -1,4 +1,4 @@
-"""Package the current STM mod and sources. Runtime data is never included."""
+"""Write local GitHub Release assets under build/release; exclude runtime data."""
 
 import hashlib
 import json
@@ -53,9 +53,6 @@ def main():
         "## Showcase\n\n" + REPO + "#showcase\n\n",
         readme,
         flags=re.S | re.M,
-    ).replace(
-        "(dist/SyntheticTerrainMC.zip)",
-        "(" + REPO + "/blob/main/dist/SyntheticTerrainMC.zip)",
     )
     payload = {
         jar.name: jar.read_bytes(),
@@ -77,16 +74,23 @@ def main():
     payload["SHA256SUMS"] = "".join(
         sha(data) + "  " + name + "\n" for name, data in payload.items()
     ).encode("utf-8")
-    dest = ROOT / "dist"
-    dest.mkdir(exist_ok=True)
-    output = dest / "SyntheticTerrainMC.zip"
+    dest = ROOT / "build" / "release"
+    dest.mkdir(parents=True, exist_ok=True)
+    output = dest / f"SyntheticTerrainMC-{version}.zip"
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
         for name, data in sorted(payload.items()):
             entry = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
             entry.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(entry, data)
+    assets = [output]
+    for artifact in (jar, sources):
+        target = dest / artifact.name
+        target.write_bytes(artifact.read_bytes())
+        assets.append(target)
     (dest / "SHA256SUMS").write_text(
-        sha(output.read_bytes()) + "  SyntheticTerrainMC.zip\n", encoding="utf-8"
+        "".join(sha(asset.read_bytes()) + "  " + asset.name + "\n" for asset in assets),
+        encoding="utf-8",
+        newline="\n",
     )
     report = {
         "version": version,

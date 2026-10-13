@@ -160,7 +160,7 @@ another after the initial ramp. Keep traversal captures separate.
 
 ## Install
 
-[Download STM](dist/SyntheticTerrainMC.zip) · MC **26.2** · Java **25** ·
+[Build from source](#build) · MC **26.2** · Java **25** ·
 Fabric Loader **0.19+** · Fabric API **26.2**
 
 Put the mod JAR in `mods/` on client and server. Install Fabric API separately.
@@ -191,7 +191,8 @@ server must both use 0.2.3+ for matching physics and visuals.
 ## Build
 
 JDK 25: `./gradlew build` or `gradlew.bat build`. JARs: `build/libs/`.
-`python tools/package_release.py` creates the current download and SHA-256 sums.
+`python tools/package_release.py` writes a versioned ZIP, JARs and SHA-256 sums
+to `build/release/`.
 Java: clang-format 22. Python: Black.
 
 ## Scope
