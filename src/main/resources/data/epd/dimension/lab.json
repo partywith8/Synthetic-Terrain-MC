@@ -1,0 +1,18 @@
+{
+  "type": "epd:lab",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "epd:calcite_plain",
+      "features": false,
+      "lakes": false,
+      "layers": [
+        {
+          "block": "minecraft:white_concrete",
+          "height": 64
+        }
+      ],
+      "structure_overrides": []
+    }
+  }
+}

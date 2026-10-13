@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "io.github.partywith8.epd.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "PipelineRegistration",
+    "WorldPass",
+    "TerrainVisibility",
+    "SodiumTerrainVisibility",
+    "TerrainUpdates",
+    "TerrainOutline",
+    "VoxelUse",
+    "MiningParticles"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

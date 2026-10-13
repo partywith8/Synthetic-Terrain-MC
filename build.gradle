@@ -1,0 +1,57 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.16.3'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+base { archivesName = project.archives_base_name }
+
+repositories { mavenCentral() }
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    if (providers.gradleProperty('localFabricApi').isPresent()) {
+        // Optional offline dependency directory; normal builds resolve Fabric API from Maven.
+        implementation fileTree(providers.gradleProperty('localFabricApi').get()) { include 'fabric-*.jar' }
+    } else {
+        implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    }
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        epd {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+}
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+}
+jar { from('LICENSE') { rename { "${it}_${project.archives_base_name}" } } }
+tasks.register('motionTest', JavaExec) {
+    dependsOn testClasses
+    // The analytic suite deliberately has no Minecraft/runtime dependencies.
+    classpath = sourceSets.main.output + sourceSets.test.output
+    mainClass = 'io.github.partywith8.epd.MotionTest'
+}
+check.dependsOn motionTest
+tasks.named('test') { enabled = false } // Tests use the explicit motionTest runner.
+tasks.named('wrapper') { validateDistributionUrl = false }
+publishing {
+    publications {
+        mavenJava(MavenPublication) { from components.java }
+    }
+}
