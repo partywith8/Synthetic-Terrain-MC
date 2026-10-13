@@ -1,0 +1,287 @@
+{
+  "date": "2026-10-14",
+  "hardware": {
+    "cpu": "AMD Ryzen 9 5900X (12C/24T)",
+    "gpu": "AMD Radeon RX 9070 XT (16 GB)",
+    "ram_gib": 32,
+    "gpu_driver": "32.0.31041.1004"
+  },
+  "runtime": {
+    "os": "Windows 11 x64",
+    "minecraft": "26.2",
+    "java": "Azul OpenJDK 25.0.1",
+    "client": "Lunar with additional mods",
+    "fabric_loader": "0.19.5",
+    "fabric_api": "0.152.1+26.2",
+    "sodium": "0.9.2+mc26.2",
+    "iris": "1.11.4+mc26.2",
+    "heap_limit_gib": 8,
+    "gc": "ZGC",
+    "server": "dedicated process on the same PC"
+  },
+  "method": {
+    "capture": "Minecraft F3+L, four complete approximately 10-second windows during /stm stress 120",
+    "fps": "rendered frame count divided by profile wall duration; duration is rounded to milliseconds by Minecraft",
+    "percentile": "nearest rank: sorted[ceil(p*N)-1], using every ticktime CSV sample converted from ns to ms",
+    "timing_scope": "instrumented client CPU frame-loop samples, not display presentation or GPU execution time",
+    "excluded_samples": 0,
+    "limitations": [
+      "No idle baseline",
+      "Different STM versions and stress implementations between pairs",
+      "Camera pose, traversal and full STM mesh readiness were not independently recorded",
+      "Other client mods and the local server contribute to total cost",
+      "Active shader-pack state is not established by these archives",
+      "Short profiled samples do not establish long-session FPS or presentation-based 1% lows",
+      "Heap is whole-client usage, not STM memory allocation or VRAM",
+      "25-chunk captures used local development build 0.3.0, not the downloadable 0.2.3 release"
+    ]
+  },
+  "pooled": [
+    {
+      "view_chunks": 10,
+      "frames": 8549,
+      "duration_ms": 20000,
+      "average_fps": 427.45
+    },
+    {
+      "view_chunks": 25,
+      "frames": 4444,
+      "duration_ms": 19997,
+      "average_fps": 222.23333500025004
+    }
+  ],
+  "captures": [
+    {
+      "capture": "10-A",
+      "source_sha256": "ea16369f65965fceffabbdbbe455eaddd5f64acf25ebcd846175238c936cee2a",
+      "duration_ms": 10000,
+      "rendered_frames": 3993,
+      "average_fps": 399.3,
+      "condition": "stress",
+      "settings": {
+        "renderDistance": "20",
+        "simulationDistance": "12",
+        "enableVsync": "false",
+        "maxFps": "260",
+        "fov": "110",
+        "graphicsPreset": "CUSTOM",
+        "renderClouds": "OFF",
+        "particles": "ALL",
+        "mipmapLevels": "4",
+        "textureFiltering": "RGSS",
+        "fullscreen": "true",
+        "effective_view_chunks": 10,
+        "server_simulation_distance": 6,
+        "fps_limit": "Unlimited",
+        "window_pixels": "2560x1440",
+        "graphics_backend": "Vulkan",
+        "stm_version": "0.2.2"
+      },
+      "sampled_client_loop_ms": {
+        "count": 3993,
+        "mean": 2.4798019534184825,
+        "p50": 2.4706,
+        "p95": 3.0259,
+        "p99": 4.3301,
+        "p99_9": 5.9666,
+        "max": 7.8523,
+        "over_8_333ms": 0,
+        "over_16_667ms": 0,
+        "over_33_333ms": 0
+      },
+      "heap_mib": {
+        "mean": 2371.077385424493,
+        "min": 1542.0,
+        "max": 3246.0
+      },
+      "cpu_profiler_stages": {
+        "swapBuffers": {
+          "percent_of_parent": 76.71,
+          "percent_of_profiled_root": 67.73
+        },
+        "render": {
+          "percent_of_parent": 13.62,
+          "percent_of_profiled_root": 12.03
+        },
+        "epd_terrain": {
+          "percent_of_parent": 62.94,
+          "percent_of_profiled_root": 2.21
+        }
+      }
+    },
+    {
+      "capture": "10-B",
+      "source_sha256": "80f31b930ac90b02859f157e9d20f50534ecf2a8dcaa84c0286e857f17c54001",
+      "duration_ms": 10000,
+      "rendered_frames": 4556,
+      "average_fps": 455.6,
+      "condition": "stress",
+      "settings": {
+        "renderDistance": "20",
+        "simulationDistance": "12",
+        "enableVsync": "false",
+        "maxFps": "260",
+        "fov": "110",
+        "graphicsPreset": "CUSTOM",
+        "renderClouds": "OFF",
+        "particles": "ALL",
+        "mipmapLevels": "4",
+        "textureFiltering": "RGSS",
+        "fullscreen": "true",
+        "effective_view_chunks": 10,
+        "server_simulation_distance": 6,
+        "fps_limit": "Unlimited",
+        "window_pixels": "2560x1440",
+        "graphics_backend": "Vulkan",
+        "stm_version": "0.2.2"
+      },
+      "sampled_client_loop_ms": {
+        "count": 4556,
+        "mean": 2.185408516242318,
+        "p50": 2.2467,
+        "p95": 2.9858,
+        "p99": 3.4362,
+        "p99_9": 5.2995,
+        "max": 5.7137,
+        "over_8_333ms": 0,
+        "over_16_667ms": 0,
+        "over_33_333ms": 0
+      },
+      "heap_mib": {
+        "mean": 4901.656277436347,
+        "min": 3782.0,
+        "max": 6040.0
+      },
+      "cpu_profiler_stages": {
+        "swapBuffers": {
+          "percent_of_parent": 74.15,
+          "percent_of_profiled_root": 65.02
+        },
+        "render": {
+          "percent_of_parent": 15.8,
+          "percent_of_profiled_root": 13.85
+        },
+        "epd_terrain": {
+          "percent_of_parent": 61.2,
+          "percent_of_profiled_root": 2.08
+        }
+      }
+    },
+    {
+      "capture": "25-A",
+      "source_sha256": "cc13af73f4347b37c1f89d47985b30ba7d8e9a446ee0bd18b1d24c7e5ac44bf8",
+      "duration_ms": 9997,
+      "rendered_frames": 2312,
+      "average_fps": 231.26938081424427,
+      "condition": "stress",
+      "settings": {
+        "renderDistance": "25",
+        "simulationDistance": "12",
+        "enableVsync": "false",
+        "maxFps": "260",
+        "fov": "110",
+        "graphicsPreset": "CUSTOM",
+        "renderClouds": "OFF",
+        "particles": "ALL",
+        "mipmapLevels": "4",
+        "textureFiltering": "RGSS",
+        "fullscreen": "true",
+        "effective_view_chunks": 25,
+        "server_simulation_distance": 6,
+        "fps_limit": "Unlimited",
+        "window_pixels": "2560x1440",
+        "graphics_backend": "Vulkan",
+        "stm_version": "0.3.0"
+      },
+      "sampled_client_loop_ms": {
+        "count": 2312,
+        "mean": 4.299420631487889,
+        "p50": 4.2643,
+        "p95": 5.1274,
+        "p99": 7.8056,
+        "p99_9": 9.7389,
+        "max": 9.8878,
+        "over_8_333ms": 16,
+        "over_16_667ms": 0,
+        "over_33_333ms": 0
+      },
+      "heap_mib": {
+        "mean": 4503.044982698962,
+        "min": 3708.0,
+        "max": 5326.0
+      },
+      "cpu_profiler_stages": {
+        "swapBuffers": {
+          "percent_of_parent": 75.47,
+          "percent_of_profiled_root": 67.9
+        },
+        "render": {
+          "percent_of_parent": 13.87,
+          "percent_of_profiled_root": 12.48
+        },
+        "epd_terrain": {
+          "percent_of_parent": 79.18,
+          "percent_of_profiled_root": 5.63
+        }
+      }
+    },
+    {
+      "capture": "25-B",
+      "source_sha256": "0c40d1833b5a6f68bd7fc1c1d2dc375b88508f1927d77d7527d8c6f0619bdc20",
+      "duration_ms": 10000,
+      "rendered_frames": 2132,
+      "average_fps": 213.2,
+      "condition": "stress",
+      "settings": {
+        "renderDistance": "25",
+        "simulationDistance": "12",
+        "enableVsync": "false",
+        "maxFps": "260",
+        "fov": "110",
+        "graphicsPreset": "CUSTOM",
+        "renderClouds": "OFF",
+        "particles": "ALL",
+        "mipmapLevels": "4",
+        "textureFiltering": "RGSS",
+        "fullscreen": "true",
+        "effective_view_chunks": 25,
+        "server_simulation_distance": 6,
+        "fps_limit": "Unlimited",
+        "window_pixels": "2560x1440",
+        "graphics_backend": "Vulkan",
+        "stm_version": "0.3.0"
+      },
+      "sampled_client_loop_ms": {
+        "count": 2132,
+        "mean": 4.670041049249531,
+        "p50": 4.381,
+        "p95": 6.152201,
+        "p99": 6.7017,
+        "p99_9": 8.5351,
+        "max": 8.7831,
+        "over_8_333ms": 4,
+        "over_16_667ms": 0,
+        "over_33_333ms": 0
+      },
+      "heap_mib": {
+        "mean": 6737.518761726079,
+        "min": 5850.0,
+        "max": 7624.0
+      },
+      "cpu_profiler_stages": {
+        "swapBuffers": {
+          "percent_of_parent": 75.3,
+          "percent_of_profiled_root": 66.31
+        },
+        "render": {
+          "percent_of_parent": 14.49,
+          "percent_of_profiled_root": 12.76
+        },
+        "epd_terrain": {
+          "percent_of_parent": 81.12,
+          "percent_of_profiled_root": 5.74
+        }
+      }
+    }
+  ]
+}

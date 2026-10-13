@@ -34,15 +34,14 @@ public record MotionEvent(long id, Movement kind, int x, int z, int radius, doub
         }
         if (axis >= 2)
             u = -u;
-        // A square footprint covers the view's corner chunks. Only an outer
-        // 32-block apron fades; distant visible chunks receive full amplitude.
-        double distance =
-                kind == Movement.STRESS ? Math.max(Math.abs(u), Math.abs(v)) : Math.hypot(u, v);
+        // Stress samples the same world-anchored waves wherever terrain is loaded.
+        // No moving boundary or recenter packets: crossing chunks cannot reset the
+        // phase or leave newly loaded terrain outside the starting footprint.
+        double distance = kind == Movement.STRESS ? 0 : Math.hypot(u, v);
         double d = distance / radius;
         if (d >= 1)
             return 0;
-        double edge = kind == Movement.STRESS ? 1 - ease((distance - radius + 32) / 32)
-                                              : 1 - ease((d - .70) / .30);
+        double edge = kind == Movement.STRESS ? 1 : 1 - ease((d - .70) / .30);
         // Slow starts/ends bound vertical velocity; mirages are fast but shallow.
         double envelope = ease(elapsed / 120) * (hold ? 1 : ease((duration - elapsed) / 120));
         double phase = Math.clamp(elapsed / duration, 0, 1);

@@ -49,10 +49,10 @@ def main():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     # Keep large showcase media in the repository, not in every mod download.
     readme = re.sub(
-        r"## Showcase\n.*?(?=## Install)",
+        r"## Showcase\n.*?(?=^## )",
         "## Showcase\n\n" + REPO + "#showcase\n\n",
         readme,
-        flags=re.S,
+        flags=re.S | re.M,
     ).replace(
         "(dist/SyntheticTerrainMC.zip)",
         "(" + REPO + "/blob/main/dist/SyntheticTerrainMC.zip)",
@@ -64,6 +64,8 @@ def main():
         "docs/TECHNICAL.md": (ROOT / "docs/TECHNICAL.md").read_bytes(),
         "LICENSE": (ROOT / "LICENSE").read_bytes(),
     }
+    for benchmark in sorted((ROOT / "docs/benchmarks").glob("*.json")):
+        payload[benchmark.relative_to(ROOT).as_posix()] = benchmark.read_bytes()
     payload["INSTALL.txt"] = (
         "Synthetic Terrain MC " + version + "\n\n"
         "MC 26.2 / Java 25 / Fabric Loader 0.19+ / Fabric API for 26.2.\n"

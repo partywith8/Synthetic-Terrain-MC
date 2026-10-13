@@ -22,10 +22,12 @@ float movement(int i) {
     vec2 p=vec2(Column)+.5-r.xy;
     if((axis%2)!=0) p=p.yx;
     if(axis>=2) p.x=-p.x;
-    float distance=kind==8?max(abs(p.x),abs(p.y)):length(p);
+    // Stress has a fixed world phase and no footprint boundary. Newly loaded
+    // chunks join the same field without recentering the surface under riders.
+    float distance=kind==8?0.0:length(p);
     float d=distance/r.z;
     if(d>=1.0) return 0.0;
-    float edge=kind==8?1.0-ease((distance-r.z+32.0)/32.0):1.0-ease((d-.70)/.30);
+    float edge=kind==8?1.0:1.0-ease((d-.70)/.30);
     float envelope=ease(elapsed/120.0)*(hold?1.0:ease((t.z-elapsed)/120.0));
     float phase=clamp(elapsed/t.z,0.0,1.0), shape=0.0;
     if(kind==0) shape=exp(-pow((p.x/r.z+1.25-phase*2.5)/.22,2.0));

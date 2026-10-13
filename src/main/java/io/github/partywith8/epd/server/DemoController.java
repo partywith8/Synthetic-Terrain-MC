@@ -140,8 +140,8 @@ public final class DemoController {
         stressPublished = false;
         reply(source,
                 "stress queued: " + seconds + " seconds, " + stress.viewChunks()
-                        + "-chunk view radius, fixed centre " + stress.x() + ", " + stress.z()
-                        + ("; full-view swells up to +/-24 blocks. Existing movements settle "
+                        + "-chunk starting view radius; coverage continues as you travel"
+                        + ("; world-anchored swells up to +/-24 blocks. Existing movements settle "
                                 + "first. ")
                         + ("Auto pauses; /stm stress stop eases back. /stm debug on shows "
                                 + "ready/loaded meshes; wait for them to match before recording."));

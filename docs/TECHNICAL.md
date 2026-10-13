@@ -7,6 +7,10 @@ motion; the server sends field changes rather than per-frame block updates.
 Java collision and GLSL displacement use matching equations. Each cube moves
 rigidly, so raycasts, mining and rider support share its translated position.
 
+Stress uses a world-anchored phase with no spatial falloff. Loaded chunks join
+the ongoing field as players travel; no chunk-boundary recenter updates or phase
+resets occur. Motion channel v3 rejects older clients with bounded stress coverage. Ordinary ambient events remain local.
+
 `epd:lab` scopes all hooks. Other dimensions retain native behavior. UUID-keyed
 return positions are stored inside the current world. No telemetry, external
 services, hard-coded hosts, account credentials or machine paths are used by the mod.
@@ -29,10 +33,11 @@ Snapshot capture and GPU upload still cost client-thread time during warm-up.
 
 ## Checks
 
-- `./gradlew build`: 2,331,225 deterministic checks, including reset continuity,
+- `./gradlew build`: 2,623,156 deterministic checks, including reset continuity,
   overlap budgets and stress coverage. Sampled stress speed: 0.347 blocks/tick.
 - `python tools/validate_gpu.py` (Windows/OpenGL): 6,144 vertex comparisons;
-  observed max Java/GLSL error <0.000036 blocks. Requires the Gradle test output.
+  observed max Java/GLSL error <0.000139 blocks over the dimension's coordinate
+  range. Requires the Gradle test output.
 - `python tools/check_client_mixins.py --help`: dependency paths supplied by the
   caller; checks class transformations without launching a game window.
 - `/stm selftest`: native mining, placement, raycasts, packet round trips,

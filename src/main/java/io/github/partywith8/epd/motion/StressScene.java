@@ -1,6 +1,6 @@
 package io.github.partywith8.epd.motion;
 
-/** Fixed, bounded footprint. Walking during a test never drags terrain with the camera. */
+/** Fixed phase origin and lifetime. Stress reaches loaded terrain without following the camera. */
 public record StressScene(int x, int z, int viewChunks, long start, int duration) {
     public StressScene {
         if (viewChunks < 2 || viewChunks > 32 || start < 0 || duration < 300 || duration > 2400)
@@ -15,8 +15,8 @@ public record StressScene(int x, int z, int viewChunks, long start, int duration
     }
 
     public MotionEvent event(long id) {
-        // A complete chunk beyond the view plus a fade apron keeps even the
-        // furthest corner at full strength without a discontinuity at the edge.
+        // Radius records the starting view for diagnostics. STRESS has no spatial
+        // falloff; only loaded/rendered chunks incur work as the owner travels.
         return new MotionEvent(id, Movement.STRESS, x, z, (viewChunks + 1) * 16 + 32, 24, start,
                 duration, 0, false);
     }

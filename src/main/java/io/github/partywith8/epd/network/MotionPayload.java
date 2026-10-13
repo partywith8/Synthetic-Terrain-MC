@@ -9,8 +9,9 @@ import net.minecraft.resources.Identifier;
 
 /** At most eight events. The constructor validates all untrusted numeric fields. */
 public record MotionPayload(MotionField field) implements CustomPacketPayload {
-    // v2 adds a large-footprint movement. Old clients must not decode it as v1.
-    public static final Type<MotionPayload> TYPE = new Type<>(Identifier.parse("epd:motion_v2"));
+    // v3 keeps stress active beyond its initial view. Older clients use a bounded
+    // field, so accepting them would disagree with server collision after travel.
+    public static final Type<MotionPayload> TYPE = new Type<>(Identifier.parse("epd:motion_v3"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MotionPayload> CODEC =
             new StreamCodec<>() {
                 public MotionPayload decode(RegistryFriendlyByteBuf b) {

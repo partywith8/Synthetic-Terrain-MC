@@ -57,7 +57,10 @@ final class RuntimeCheck {
                     "placed cell reappears");
             int riderChecks = 0;
             for (var kind : Movement.values()) {
-                var motion = new MotionEvent(1, kind, 20, 20, kind == Movement.STRESS ? 208 : 48,
+                // Keep the rider in the same native test chunk but put the
+                // stress origin kilometres away to exercise roaming support.
+                var motion = new MotionEvent(1, kind, kind == Movement.STRESS ? -3072 : 20,
+                        kind == Movement.STRESS ? 3072 : 20, kind == Movement.STRESS ? 208 : 48,
                         kind == Movement.MIRAGE           ? .5
                                 : kind == Movement.STRESS ? 24
                                                           : 18,
