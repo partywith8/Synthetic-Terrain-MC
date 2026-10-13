@@ -1,4 +1,4 @@
-"""Render compact, transparent README charts from measured benchmark aggregates."""
+"""Render transparent README charts from measured benchmark aggregates."""
 
 import json
 import math
@@ -19,6 +19,14 @@ THEMES = {
     "-dark": {"text": "#e6edf3", "muted": "#aebbc8", "grid": "#394654"},
 }
 COLORS = {"stress": "#29a58c", "smp": "#598fdb", "flat_overworld": "#c69231"}
+LABELS = [
+    "STM stress · 10",
+    "STM stress · 25",
+    "SMP · 10",
+    "SMP · 25→14",
+    "Flat OW · 10",
+    "Flat OW · 25",
+]
 
 
 def save(fig, path):
@@ -34,14 +42,6 @@ def save(fig, path):
 def bars(directory, groups, theme, suffix, timing=False):
     fig, ax = plt.subplots(figsize=(5, 2.85))
     fig.subplots_adjust(left=0.29, right=0.85, top=0.84, bottom=0.17)
-    labels = [
-        "STM stress · 10",
-        "STM stress · 25",
-        "SMP · 10",
-        "SMP · 25→14",
-        "Flat OW · 10",
-        "Flat OW · 25",
-    ]
     values = [
         g["sampled_client_loop_ms"]["p99"] if timing else g["average_fps"]
         for g in groups
@@ -52,7 +52,7 @@ def bars(directory, groups, theme, suffix, timing=False):
         height=0.57,
         color=[COLORS[g["scenario"]] for g in groups],
     )
-    ax.set_yticks(range(len(groups)), labels)
+    ax.set_yticks(range(len(groups)), LABELS)
     ax.invert_yaxis()
     ax.set_xlim(0, 9 if timing else 2050)
     ax.xaxis.set_major_locator(MultipleLocator(2 if timing else 500))
@@ -138,6 +138,144 @@ def pie(directory, capture, theme, suffix):
     save(fig, directory / ("stress-cpu-profile" + suffix + ".png"))
 
 
+def clean_axis(ax, theme, grid_axis="y"):
+    ax.set_axisbelow(True)
+    ax.grid(axis=grid_axis, color=theme["grid"], linewidth=0.5)
+    ax.tick_params(colors=theme["muted"], length=0, labelsize=10)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+
+def low_bars(directory, groups, theme, suffix):
+    fig, ax = plt.subplots(figsize=(9.5, 5))
+    fig.subplots_adjust(left=0.19, right=0.92, top=0.82, bottom=0.12)
+    colors = ["#598fdb", "#29a58c", "#c69231"]
+    keys = [None, "one_percent", "point_one_percent"]
+    names = ["Avg FPS (wall time)", "1% low (CPU-derived)", "0.1% low (CPU-derived)"]
+    for series, (key, name, color) in enumerate(zip(keys, names, colors)):
+        values = [
+            g["average_fps"] if key is None else g["cpu_derived_lows"][key]["fps"]
+            for g in groups
+        ]
+        positions = [i + (series - 1) * 0.24 for i in range(len(groups))]
+        ax.barh(positions, values, height=0.21, color=color, label=name)
+        for y, value in zip(positions, values):
+            ax.text(
+                value + 15,
+                y,
+                f"{value:,.1f}",
+                va="center",
+                fontsize=9,
+                color=theme["text"],
+            )
+    ax.set_yticks(range(len(groups)), LABELS)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 2050)
+    clean_axis(ax, theme, "x")
+    ax.legend(
+        loc="lower left",
+        bbox_to_anchor=(-0.21, 1.035),
+        ncol=3,
+        frameon=False,
+        fontsize=9,
+        labelcolor=theme["text"],
+        handlelength=1,
+    )
+    fig.text(
+        0.025,
+        0.97,
+        "Average FPS + sampled lows ↑",
+        color=theme["text"],
+        weight="bold",
+        fontsize=14,
+        va="top",
+    )
+    ax.set_xlabel(
+        "FPS · pooled within each scene / view setting",
+        color=theme["muted"],
+        fontsize=10,
+    )
+    save(fig, directory / ("fps-lows" + suffix + ".png"))
+
+
+def timeline(directory, groups, captures, theme, suffix):
+    fig, axes = plt.subplots(3, 2, figsize=(9.5, 7.5))
+    fig.subplots_adjust(
+        left=0.085, right=0.98, top=0.87, bottom=0.08, hspace=0.65, wspace=0.24
+    )
+    fig.text(
+        0.025,
+        0.97,
+        "FPS over time · sampled client loop",
+        color=theme["text"],
+        weight="bold",
+        fontsize=14,
+        va="top",
+    )
+    fig.text(
+        0.025,
+        0.92,
+        "Approx. 1 s bins · A solid / B hatched · paired panels share a vertical scale",
+        color=theme["muted"],
+        fontsize=10,
+    )
+    limits = {
+        scenario: math.ceil(
+            max(
+                b["fps"]
+                for c in captures
+                if c["scenario"] == scenario
+                for b in c["cpu_loop_timeline"]
+            )
+            * 1.1
+            / 100
+        )
+        * 100
+        for scenario in COLORS
+    }
+    for ax, group, label in zip(axes.flat, groups, LABELS):
+        runs = [
+            c
+            for c in captures
+            if c["scenario"] == group["scenario"]
+            and c["settings"]["effective_view_chunks"] == group["effective_view_chunks"]
+        ]
+        width = 0.36 if len(runs) == 2 else 0.72
+        for i, run in enumerate(runs):
+            bins = run["cpu_loop_timeline"]
+            x = [b["second"] + 0.5 + (i - (len(runs) - 1) / 2) * width for b in bins]
+            values = [b["fps"] for b in bins]
+            assert (
+                max(values) < limits[group["scenario"]]
+            ), "Increase the plot limit for new data"
+            ax.bar(
+                x,
+                values,
+                width=width,
+                color=COLORS[group["scenario"]],
+                alpha=1 if i == 0 else 0.55,
+                hatch=None if i == 0 else "///",
+                edgecolor=theme["text"],
+                linewidth=0.2,
+            )
+        ax.set_title(
+            label + (" · A only" if len(runs) == 1 else ""),
+            loc="left",
+            fontsize=11,
+            color=theme["text"],
+            pad=8,
+        )
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, limits[group["scenario"]])
+        ax.set_xticks([0, 2, 4, 6, 8, 10])
+        clean_axis(ax, theme)
+    for ax in axes[:, 0]:
+        ax.set_ylabel("FPS", color=theme["muted"], fontsize=10)
+    for ax in axes[-1, :]:
+        ax.set_xlabel("Sampled elapsed time (s)", color=theme["muted"], fontsize=10)
+    save(fig, directory / ("fps-timeline" + suffix + ".png"))
+
+
 def main():
     directory = ROOT / "docs/benchmarks"
     report = json.loads(
@@ -161,6 +299,8 @@ def main():
         bars(directory, groups, theme, suffix)
         bars(directory, groups, theme, suffix, timing=True)
         pie(directory, capture, theme, suffix)
+        low_bars(directory, groups, theme, suffix)
+        timeline(directory, groups, report["captures"], theme, suffix)
 
 
 if __name__ == "__main__":

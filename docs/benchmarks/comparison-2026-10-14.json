@@ -33,7 +33,9 @@
       "Camera pose, traversal, mesh readiness and active shader-pack state not independently recorded",
       "Short CPU-loop profiles do not establish presentation-based 1% lows, GPU execution time or server TPS/MSPT"
     ],
-    "pooled_percentiles": "Calculated from concatenated samples within each scenario/view group; never averaged from per-capture percentiles"
+    "pooled_percentiles": "Calculated from concatenated samples within each scenario/view group; never averaged from per-capture percentiles",
+    "cpu_derived_lows": "1000 / mean of the slowest ceil(N * fraction) CPU-loop samples in ms, for fractions 0.01 and 0.001; pooled groups concatenate samples first. Not display-presentation 1%/0.1% lows.",
+    "cpu_loop_timeline": "Group samples by floor(cumulative preceding sampled CPU-loop duration / 1000 ms). Bin FPS = sample count / summed sampled loop seconds. Time is approximate sampled elapsed time, not wall timestamps. Final partial bin retained; runs remain separate."
   },
   "groups": [
     {
@@ -51,6 +53,16 @@
         "p99": 7.6729,
         "max": 17.6077,
         "over_16_667ms": 1
+      },
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 114.63519211071674,
+          "sample_count": 77
+        },
+        "point_one_percent": {
+          "fps": 81.71745576787339,
+          "sample_count": 8
+        }
       }
     },
     {
@@ -68,6 +80,16 @@
         "p99": 6.0592,
         "max": 9.9146,
         "over_16_667ms": 0
+      },
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 147.76438996992707,
+          "sample_count": 102
+        },
+        "point_one_percent": {
+          "fps": 116.33084068068347,
+          "sample_count": 11
+        }
       }
     },
     {
@@ -85,6 +107,16 @@
         "p99": 1.607001,
         "max": 6.447701,
         "over_16_667ms": 0
+      },
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 454.4260884368756,
+          "sample_count": 172
+        },
+        "point_one_percent": {
+          "fps": 272.5402275432303,
+          "sample_count": 18
+        }
       }
     },
     {
@@ -102,6 +134,16 @@
         "p99": 1.4539,
         "max": 3.9983,
         "over_16_667ms": 0
+      },
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 521.0578284451836,
+          "sample_count": 180
+        },
+        "point_one_percent": {
+          "fps": 319.27743967873596,
+          "sample_count": 18
+        }
       }
     },
     {
@@ -119,6 +161,16 @@
         "p99": 7.3078,
         "max": 9.8878,
         "over_16_667ms": 0
+      },
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 119.90676018352993,
+          "sample_count": 45
+        },
+        "point_one_percent": {
+          "fps": 102.79837743041065,
+          "sample_count": 5
+        }
       }
     },
     {
@@ -136,6 +188,16 @@
         "p99": 4.0153,
         "max": 7.8523,
         "over_16_667ms": 0
+      },
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 210.21677994336372,
+          "sample_count": 86
+        },
+        "point_one_percent": {
+          "fps": 161.55639844116027,
+          "sample_count": 9
+        }
       }
     }
   ],
@@ -197,7 +259,79 @@
           "percent_of_profiled_root": 2.21
         }
       },
-      "scenario": "stress"
+      "scenario": "stress",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 196.69938433092705,
+          "sample_count": 40
+        },
+        "point_one_percent": {
+          "fps": 148.1152336517811,
+          "sample_count": 4
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 366,
+          "sampled_duration_ms": 1001.5028,
+          "fps": 365.45080053695307
+        },
+        {
+          "second": 1,
+          "sample_count": 495,
+          "sampled_duration_ms": 1000.1780999999995,
+          "fps": 494.9118561984111
+        },
+        {
+          "second": 2,
+          "sample_count": 456,
+          "sampled_duration_ms": 999.7828000000003,
+          "fps": 456.09906471685656
+        },
+        {
+          "second": 3,
+          "sample_count": 390,
+          "sampled_duration_ms": 1000.0953999999998,
+          "fps": 389.9627975491138
+        },
+        {
+          "second": 4,
+          "sample_count": 409,
+          "sampled_duration_ms": 1003.0942999999996,
+          "fps": 407.7383352691766
+        },
+        {
+          "second": 5,
+          "sample_count": 421,
+          "sampled_duration_ms": 1000.1301000000004,
+          "fps": 420.9452350249233
+        },
+        {
+          "second": 6,
+          "sample_count": 377,
+          "sampled_duration_ms": 997.3558999999999,
+          "fps": 377.99946839438155
+        },
+        {
+          "second": 7,
+          "sample_count": 363,
+          "sampled_duration_ms": 1000.3516999999999,
+          "fps": 362.8723777847331
+        },
+        {
+          "second": 8,
+          "sample_count": 372,
+          "sampled_duration_ms": 999.1326999999999,
+          "fps": 372.322915664756
+        },
+        {
+          "second": 9,
+          "sample_count": 344,
+          "sampled_duration_ms": 900.2253999999997,
+          "fps": 382.12652075802345
+        }
+      ]
     },
     {
       "capture": "STM-10-B",
@@ -256,7 +390,79 @@
           "percent_of_profiled_root": 2.08
         }
       },
-      "scenario": "stress"
+      "scenario": "stress",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 240.50288106766547,
+          "sample_count": 46
+        },
+        "point_one_percent": {
+          "fps": 183.27034942324823,
+          "sample_count": 5
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 361,
+          "sampled_duration_ms": 1001.7641999999998,
+          "fps": 360.3642453982684
+        },
+        {
+          "second": 1,
+          "sample_count": 356,
+          "sampled_duration_ms": 998.9448999999996,
+          "fps": 356.37601233061
+        },
+        {
+          "second": 2,
+          "sample_count": 480,
+          "sampled_duration_ms": 999.8886000000011,
+          "fps": 480.0534779574445
+        },
+        {
+          "second": 3,
+          "sample_count": 697,
+          "sampled_duration_ms": 1000.8248000000008,
+          "fps": 696.4255881748734
+        },
+        {
+          "second": 4,
+          "sample_count": 471,
+          "sampled_duration_ms": 999.0858000000004,
+          "fps": 471.4309822039309
+        },
+        {
+          "second": 5,
+          "sample_count": 486,
+          "sampled_duration_ms": 999.9757000000004,
+          "fps": 486.0118100869851
+        },
+        {
+          "second": 6,
+          "sample_count": 535,
+          "sampled_duration_ms": 1000.799499999999,
+          "fps": 534.5726091989454
+        },
+        {
+          "second": 7,
+          "sample_count": 431,
+          "sampled_duration_ms": 1000.6042999999993,
+          "fps": 430.7397039968747
+        },
+        {
+          "second": 8,
+          "sample_count": 384,
+          "sampled_duration_ms": 1000.1614000000002,
+          "fps": 383.93803240157035
+        },
+        {
+          "second": 9,
+          "sample_count": 355,
+          "sampled_duration_ms": 954.6719999999997,
+          "fps": 371.8554644946118
+        }
+      ]
     },
     {
       "capture": "STM-25-A",
@@ -315,7 +521,79 @@
           "percent_of_profiled_root": 5.63
         }
       },
-      "scenario": "stress"
+      "scenario": "stress",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 113.93939278849098,
+          "sample_count": 24
+        },
+        "point_one_percent": {
+          "fps": 102.11479745529924,
+          "sample_count": 3
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 174,
+          "sampled_duration_ms": 1003.1197000000004,
+          "fps": 173.45886039323125
+        },
+        {
+          "second": 1,
+          "sample_count": 226,
+          "sampled_duration_ms": 999.5765000000001,
+          "fps": 226.09575155078176
+        },
+        {
+          "second": 2,
+          "sample_count": 232,
+          "sampled_duration_ms": 1000.3483000000001,
+          "fps": 231.91922253479115
+        },
+        {
+          "second": 3,
+          "sample_count": 237,
+          "sampled_duration_ms": 999.493800000001,
+          "fps": 237.1200301592666
+        },
+        {
+          "second": 4,
+          "sample_count": 237,
+          "sampled_duration_ms": 998.4862999999998,
+          "fps": 237.35929075842103
+        },
+        {
+          "second": 5,
+          "sample_count": 242,
+          "sampled_duration_ms": 999.9599999999996,
+          "fps": 242.00968038721547
+        },
+        {
+          "second": 6,
+          "sample_count": 278,
+          "sampled_duration_ms": 999.9163999999998,
+          "fps": 278.02324274309336
+        },
+        {
+          "second": 7,
+          "sample_count": 222,
+          "sampled_duration_ms": 1002.4295000000004,
+          "fps": 221.4619581726196
+        },
+        {
+          "second": 8,
+          "sample_count": 226,
+          "sampled_duration_ms": 997.9422999999994,
+          "fps": 226.46599908631993
+        },
+        {
+          "second": 9,
+          "sample_count": 238,
+          "sampled_duration_ms": 938.9876999999996,
+          "fps": 253.46444900183465
+        }
+      ]
     },
     {
       "capture": "STM-25-B",
@@ -374,7 +652,79 @@
           "percent_of_profiled_root": 5.74
         }
       },
-      "scenario": "stress"
+      "scenario": "stress",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 134.13938748126608,
+          "sample_count": 22
+        },
+        "point_one_percent": {
+          "fps": 115.22507297587956,
+          "sample_count": 3
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 233,
+          "sampled_duration_ms": 1002.1625999999999,
+          "fps": 232.4972015519238
+        },
+        {
+          "second": 1,
+          "sample_count": 214,
+          "sampled_duration_ms": 1002.3600090000002,
+          "fps": 213.49614717121062
+        },
+        {
+          "second": 2,
+          "sample_count": 162,
+          "sampled_duration_ms": 997.0180000000004,
+          "fps": 162.48452886507565
+        },
+        {
+          "second": 3,
+          "sample_count": 171,
+          "sampled_duration_ms": 999.7035039999996,
+          "fps": 171.05071585304756
+        },
+        {
+          "second": 4,
+          "sample_count": 206,
+          "sampled_duration_ms": 1000.4152979999996,
+          "fps": 205.9144841265712
+        },
+        {
+          "second": 5,
+          "sample_count": 248,
+          "sampled_duration_ms": 1001.375592,
+          "fps": 247.6593218181815
+        },
+        {
+          "second": 6,
+          "sample_count": 267,
+          "sampled_duration_ms": 1000.442902,
+          "fps": 266.8817975181156
+        },
+        {
+          "second": 7,
+          "sample_count": 239,
+          "sampled_duration_ms": 1000.3845119999999,
+          "fps": 238.9081369544434
+        },
+        {
+          "second": 8,
+          "sample_count": 222,
+          "sampled_duration_ms": 997.3628,
+          "fps": 222.58700645341895
+        },
+        {
+          "second": 9,
+          "sample_count": 170,
+          "sampled_duration_ms": 955.3022999999996,
+          "fps": 177.95414079920042
+        }
+      ]
     },
     {
       "capture": "SMP-14-A",
@@ -430,7 +780,79 @@
         },
         "epd_terrain": null
       },
-      "scenario": "smp"
+      "scenario": "smp",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 107.42582464563269,
+          "sample_count": 37
+        },
+        "point_one_percent": {
+          "fps": 72.59883878157369,
+          "sample_count": 4
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 460,
+          "sampled_duration_ms": 1001.5092999999995,
+          "fps": 459.30676829461294
+        },
+        {
+          "second": 1,
+          "sample_count": 355,
+          "sampled_duration_ms": 999.6171999999996,
+          "fps": 355.1359460401441
+        },
+        {
+          "second": 2,
+          "sample_count": 302,
+          "sampled_duration_ms": 1001.3138000000004,
+          "fps": 301.60375298932263
+        },
+        {
+          "second": 3,
+          "sample_count": 309,
+          "sampled_duration_ms": 998.5563000000003,
+          "fps": 309.4467482704781
+        },
+        {
+          "second": 4,
+          "sample_count": 345,
+          "sampled_duration_ms": 999.9798000000002,
+          "fps": 345.0069691407767
+        },
+        {
+          "second": 5,
+          "sample_count": 326,
+          "sampled_duration_ms": 1000.1059000000001,
+          "fps": 325.96548025564095
+        },
+        {
+          "second": 6,
+          "sample_count": 318,
+          "sampled_duration_ms": 1000.0564,
+          "fps": 317.9820658114882
+        },
+        {
+          "second": 7,
+          "sample_count": 455,
+          "sampled_duration_ms": 1000.0686000000004,
+          "fps": 454.9687891410649
+        },
+        {
+          "second": 8,
+          "sample_count": 498,
+          "sampled_duration_ms": 999.8361,
+          "fps": 498.0816355800715
+        },
+        {
+          "second": 9,
+          "sample_count": 329,
+          "sampled_duration_ms": 932.1733000000003,
+          "fps": 352.9386649456705
+        }
+      ]
     },
     {
       "capture": "SMP-14-B",
@@ -486,7 +908,79 @@
         },
         "epd_terrain": null
       },
-      "scenario": "smp"
+      "scenario": "smp",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 124.68586953743414,
+          "sample_count": 40
+        },
+        "point_one_percent": {
+          "fps": 106.73326822603973,
+          "sample_count": 4
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 317,
+          "sampled_duration_ms": 1000.5245999999996,
+          "fps": 316.8337889942936
+        },
+        {
+          "second": 1,
+          "sample_count": 402,
+          "sampled_duration_ms": 1001.2886000000005,
+          "fps": 401.4826494579085
+        },
+        {
+          "second": 2,
+          "sample_count": 588,
+          "sampled_duration_ms": 999.2254999999994,
+          "fps": 588.4557589853341
+        },
+        {
+          "second": 3,
+          "sample_count": 515,
+          "sampled_duration_ms": 999.1513000000002,
+          "fps": 515.4374517653132
+        },
+        {
+          "second": 4,
+          "sample_count": 437,
+          "sampled_duration_ms": 1001.7390999999993,
+          "fps": 436.2413326983044
+        },
+        {
+          "second": 5,
+          "sample_count": 411,
+          "sampled_duration_ms": 1004.7092000000004,
+          "fps": 409.0735906469255
+        },
+        {
+          "second": 6,
+          "sample_count": 411,
+          "sampled_duration_ms": 995.3588999999998,
+          "fps": 412.91638624017935
+        },
+        {
+          "second": 7,
+          "sample_count": 327,
+          "sampled_duration_ms": 1000.4709000000005,
+          "fps": 326.84608817707743
+        },
+        {
+          "second": 8,
+          "sample_count": 290,
+          "sampled_duration_ms": 998.2133999999998,
+          "fps": 290.51904131922095
+        },
+        {
+          "second": 9,
+          "sample_count": 295,
+          "sampled_duration_ms": 950.9053,
+          "fps": 310.23068227719415
+        }
+      ]
     },
     {
       "capture": "SMP-10-A",
@@ -542,7 +1036,79 @@
         },
         "epd_terrain": null
       },
-      "scenario": "smp"
+      "scenario": "smp",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 145.56360835460782,
+          "sample_count": 47
+        },
+        "point_one_percent": {
+          "fps": 112.06239634228338,
+          "sample_count": 5
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 671,
+          "sampled_duration_ms": 1003.3742999999996,
+          "fps": 668.743458946477
+        },
+        {
+          "second": 1,
+          "sample_count": 517,
+          "sampled_duration_ms": 997.7170999999996,
+          "fps": 518.182959879108
+        },
+        {
+          "second": 2,
+          "sample_count": 493,
+          "sampled_duration_ms": 1000.8940999999999,
+          "fps": 492.559602459441
+        },
+        {
+          "second": 3,
+          "sample_count": 470,
+          "sampled_duration_ms": 998.4161000000004,
+          "fps": 470.7456139779797
+        },
+        {
+          "second": 4,
+          "sample_count": 493,
+          "sampled_duration_ms": 1000.8166999999996,
+          "fps": 492.59769546211606
+        },
+        {
+          "second": 5,
+          "sample_count": 413,
+          "sampled_duration_ms": 998.8003999999997,
+          "fps": 413.49602983739294
+        },
+        {
+          "second": 6,
+          "sample_count": 387,
+          "sampled_duration_ms": 1004.9141,
+          "fps": 385.1075430228315
+        },
+        {
+          "second": 7,
+          "sample_count": 362,
+          "sampled_duration_ms": 998.7468999999995,
+          "fps": 362.45419134717713
+        },
+        {
+          "second": 8,
+          "sample_count": 394,
+          "sampled_duration_ms": 996.8094000000001,
+          "fps": 395.2611201298864
+        },
+        {
+          "second": 9,
+          "sample_count": 411,
+          "sampled_duration_ms": 957.8788999999998,
+          "fps": 429.07302791615933
+        }
+      ]
     },
     {
       "capture": "SMP-10-B",
@@ -598,7 +1164,79 @@
         },
         "epd_terrain": null
       },
-      "scenario": "smp"
+      "scenario": "smp",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 150.36935816182054,
+          "sample_count": 56
+        },
+        "point_one_percent": {
+          "fps": 123.03376661724809,
+          "sample_count": 6
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 605,
+          "sampled_duration_ms": 1002.9877000000001,
+          "fps": 603.1978258556909
+        },
+        {
+          "second": 1,
+          "sample_count": 623,
+          "sampled_duration_ms": 997.6649000000006,
+          "fps": 624.4581722780865
+        },
+        {
+          "second": 2,
+          "sample_count": 510,
+          "sampled_duration_ms": 1001.9286000000002,
+          "fps": 509.0183072925556
+        },
+        {
+          "second": 3,
+          "sample_count": 558,
+          "sampled_duration_ms": 998.046400000001,
+          "fps": 559.0922426051535
+        },
+        {
+          "second": 4,
+          "sample_count": 656,
+          "sampled_duration_ms": 999.4513999999992,
+          "fps": 656.3600791394158
+        },
+        {
+          "second": 5,
+          "sample_count": 619,
+          "sampled_duration_ms": 1004.4722000000006,
+          "fps": 616.2440334336778
+        },
+        {
+          "second": 6,
+          "sample_count": 618,
+          "sampled_duration_ms": 996.4167000000008,
+          "fps": 620.2224430802896
+        },
+        {
+          "second": 7,
+          "sample_count": 595,
+          "sampled_duration_ms": 1000.2943000000007,
+          "fps": 594.8249430192694
+        },
+        {
+          "second": 8,
+          "sample_count": 420,
+          "sampled_duration_ms": 1000.4528000000007,
+          "fps": 419.80991007271905
+        },
+        {
+          "second": 9,
+          "sample_count": 331,
+          "sampled_duration_ms": 954.1434999999998,
+          "fps": 346.90798606289303
+        }
+      ]
     },
     {
       "capture": "FLAT-10-A",
@@ -654,7 +1292,79 @@
         },
         "epd_terrain": null
       },
-      "scenario": "flat_overworld"
+      "scenario": "flat_overworld",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 521.0578284451836,
+          "sample_count": 180
+        },
+        "point_one_percent": {
+          "fps": 319.27743967873596,
+          "sample_count": 18
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 2023,
+          "sampled_duration_ms": 1000.2559999999979,
+          "fps": 2022.4822445453963
+        },
+        {
+          "second": 1,
+          "sample_count": 1757,
+          "sampled_duration_ms": 1000.4392000000009,
+          "fps": 1756.2286643706084
+        },
+        {
+          "second": 2,
+          "sample_count": 1861,
+          "sampled_duration_ms": 999.5736,
+          "fps": 1861.7938689057014
+        },
+        {
+          "second": 3,
+          "sample_count": 1773,
+          "sampled_duration_ms": 999.8890999999991,
+          "fps": 1773.1966475082088
+        },
+        {
+          "second": 4,
+          "sample_count": 1785,
+          "sampled_duration_ms": 1000.5625000000015,
+          "fps": 1783.996501967643
+        },
+        {
+          "second": 5,
+          "sample_count": 1749,
+          "sampled_duration_ms": 999.6866999999994,
+          "fps": 1749.5481334302037
+        },
+        {
+          "second": 6,
+          "sample_count": 1729,
+          "sampled_duration_ms": 999.9643000000012,
+          "fps": 1729.0617275036718
+        },
+        {
+          "second": 7,
+          "sample_count": 1875,
+          "sampled_duration_ms": 1000.7915999999992,
+          "fps": 1873.516924002959
+        },
+        {
+          "second": 8,
+          "sample_count": 1870,
+          "sampled_duration_ms": 999.2354000000017,
+          "fps": 1871.43089606313
+        },
+        {
+          "second": 9,
+          "sample_count": 1555,
+          "sampled_duration_ms": 910.1219999999989,
+          "fps": 1708.5621488108188
+        }
+      ]
     },
     {
       "capture": "FLAT-25-A",
@@ -710,7 +1420,79 @@
         },
         "epd_terrain": null
       },
-      "scenario": "flat_overworld"
+      "scenario": "flat_overworld",
+      "cpu_derived_lows": {
+        "one_percent": {
+          "fps": 454.4260884368756,
+          "sample_count": 172
+        },
+        "point_one_percent": {
+          "fps": 272.5402275432303,
+          "sample_count": 18
+        }
+      },
+      "cpu_loop_timeline": [
+        {
+          "second": 0,
+          "sample_count": 1987,
+          "sampled_duration_ms": 1000.2664619999996,
+          "fps": 1986.470681049386
+        },
+        {
+          "second": 1,
+          "sample_count": 1659,
+          "sampled_duration_ms": 1000.4884930000007,
+          "fps": 1658.1899857992669
+        },
+        {
+          "second": 2,
+          "sample_count": 1511,
+          "sampled_duration_ms": 999.6661000000008,
+          "fps": 1511.504691416464
+        },
+        {
+          "second": 3,
+          "sample_count": 1514,
+          "sampled_duration_ms": 999.7573160000001,
+          "fps": 1514.367512765468
+        },
+        {
+          "second": 4,
+          "sample_count": 1943,
+          "sampled_duration_ms": 999.9494409999998,
+          "fps": 1943.098241103972
+        },
+        {
+          "second": 5,
+          "sample_count": 1637,
+          "sampled_duration_ms": 1000.5283320000011,
+          "fps": 1636.1355772182171
+        },
+        {
+          "second": 6,
+          "sample_count": 1703,
+          "sampled_duration_ms": 999.6632510000007,
+          "fps": 1703.573676732066
+        },
+        {
+          "second": 7,
+          "sample_count": 1743,
+          "sampled_duration_ms": 999.9613029999997,
+          "fps": 1743.0674514811699
+        },
+        {
+          "second": 8,
+          "sample_count": 1873,
+          "sampled_duration_ms": 999.8437169999983,
+          "fps": 1873.2927638130072
+        },
+        {
+          "second": 9,
+          "sample_count": 1536,
+          "sampled_duration_ms": 920.3111000000001,
+          "fps": 1669.000841128614
+        }
+      ]
     }
   ],
   "excluded_captures": [

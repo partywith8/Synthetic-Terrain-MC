@@ -25,11 +25,12 @@ Unlimited FPS, VSync off, Vulkan, FOV 110. Recorded 2026-10-14 with F3+L.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-performance-dark.png">
-  <img src="docs/benchmarks/stress-performance.png" alt="Pooled FPS: STM stress, populated SMP and superflat Overworld" width="390">
+  <img src="docs/benchmarks/stress-performance.png" alt="Pooled FPS: STM stress, populated SMP and superflat Overworld" width="650">
 </picture>
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-timing-dark.png">
-  <img src="docs/benchmarks/stress-timing.png" alt="Pooled p99 CPU client-loop times for the same scenes" width="390">
+  <img src="docs/benchmarks/stress-timing.png" alt="Pooled p99 CPU client-loop times for the same scenes" width="650">
 </picture>
 
 | Scene | View: client → effective | Runs | Avg FPS | p95 / p99 loop (ms) |
@@ -45,6 +46,43 @@ The SMP pair requested 25 chunks but recorded **14 effective**. Superflat has
 one run per distance; the other settings have two. These are different scenes,
 not a controlled measurement of STM overhead. STM's 10-chunk pair used 0.2.2;
 its 25-chunk pair used development build 0.3.0, not the downloadable 0.2.3.
+
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/fps-lows-dark.png">
+  <img src="docs/benchmarks/fps-lows.png" alt="Average FPS and CPU-derived 1% and 0.1% lows for each scene" width="760">
+</picture>
+
+Lows use the mean duration of the slowest **1% / 0.1% of sampled CPU loops**,
+converted to FPS. They describe these profiler samples, not display-presentation
+lows. Average FPS still uses recorded wall time.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/fps-timeline-dark.png">
+  <img src="docs/benchmarks/fps-timeline.png" alt="FPS over approximate sampled elapsed time; each run shown separately in one-second bars" width="760">
+</picture>
+
+The timeline groups loops into approximately one-second bins using cumulative
+sampled duration. It is not a wall-clock trace. A/B runs remain separate; the
+last partial bin is retained. Paired panels share a scale within each scene.
+
+<details>
+<summary>CPU-derived low-FPS values</summary>
+
+| Scene / effective chunks | 1% low | 0.1% low | Samples in slowest 0.1% |
+| --- | ---: | ---: | ---: |
+| STM stress / 10 | 210.2 | 161.6 | 9 |
+| STM stress / 25 | 119.9 | 102.8 | 5 |
+| SMP / 10 | 147.8 | 116.3 | 11 |
+| SMP / 14 | 114.6 | 81.7 | 8 |
+| Flat OW / 10 | 521.1 | 319.3 | 18 |
+| Flat OW / 25 | 454.4 | 272.5 | 18 |
+
+For each fraction `f`, take the slowest `ceil(N × f)` samples, then calculate
+`1000 / mean(sample_ms)`. Paired runs are pooled before selecting the slowest
+samples. The 0.1% figures use very few samples and can vary substantially.
+
+</details>
 
 <details>
 <summary>Per-run FPS, loop timings and memory</summary>
@@ -87,7 +125,7 @@ it is not STM-only memory or VRAM. `SMP-14` means 25 requested / 14 effective.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/benchmarks/stress-cpu-profile-dark.png">
-  <img src="docs/benchmarks/stress-cpu-profile.png" alt="CPU profiler shares for STM-25-B: swap 66.31%, STM 5.74%, other render 7.02%, other work 20.93%" width="390">
+  <img src="docs/benchmarks/stress-cpu-profile.png" alt="CPU profiler shares for STM-25-B: swap 66.31%, STM 5.74%, other render 7.02%, other work 20.93%" width="560">
 </picture>
 
 The pie uses **STM-25-B**. STM's render pass is subtracted from inclusive
