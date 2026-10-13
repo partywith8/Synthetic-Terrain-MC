@@ -64,8 +64,9 @@ def main():
         "docs/TECHNICAL.md": (ROOT / "docs/TECHNICAL.md").read_bytes(),
         "LICENSE": (ROOT / "LICENSE").read_bytes(),
     }
-    for benchmark in sorted((ROOT / "docs/benchmarks").glob("*.json")):
-        payload[benchmark.relative_to(ROOT).as_posix()] = benchmark.read_bytes()
+    for benchmark in sorted((ROOT / "docs/benchmarks").iterdir()):
+        if benchmark.suffix in {".json", ".png"}:
+            payload[benchmark.relative_to(ROOT).as_posix()] = benchmark.read_bytes()
     payload["INSTALL.txt"] = (
         "Synthetic Terrain MC " + version + "\n\n"
         "MC 26.2 / Java 25 / Fabric Loader 0.19+ / Fabric API for 26.2.\n"

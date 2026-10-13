@@ -37,6 +37,8 @@ The client is modded beyond STM. These results describe that configuration.
 The 25-chunk captures used local development build 0.3.0, not the downloadable
 0.2.3 package; they are development measurements, not a benchmark of that release.
 
+![FPS and client-loop timing across four stress captures](docs/benchmarks/stress-performance.png)
+
 ### Rendered FPS
 
 | Run | STM | Effective / client view (chunks) | Duration (s) | Frames | Avg FPS |
@@ -73,6 +75,8 @@ No sampled loop exceeded 16.67 ms in these windows. Heap values cover the whole
 client, including other mods and garbage awaiting collection; they are not
 STM-only memory or VRAM measurements.
 
+![CPU profiler time shares during 25-chunk stress, run 25-B](docs/benchmarks/stress-cpu-profile.png)
+
 <details>
 <summary>CPU profiler breakdown and methodology</summary>
 
@@ -104,7 +108,7 @@ GPU work, establish a GPU bottleneck, or measure STM’s entire per-frame cost.
   do not establish long-session performance or results on other hardware.
 
 [Aggregate data and capture SHA-256s](docs/benchmarks/stress-2026-10-14.json).
-Raw reports are excluded because they contain machine-specific information.
+Regenerate figures with `python tools/render_benchmarks.py` (Matplotlib).
 
 </details>
 
